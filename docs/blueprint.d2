@@ -1,0 +1,85 @@
+vars: {
+  d2-config: {
+    theme-id: 3 # terrastruct
+    sketch: true
+    layout-engine: elk
+  }
+}
+
+processor: {
+    adaptor_clickhouse
+    adaptor_S3
+    adaptor_mongo
+    adaptor_opensearch
+
+    ingress: {
+        message: {
+            shape: class
+
+            id: string
+            timestamp: string
+            content: bytes
+        }
+    }
+
+    boot_loader: {}
+
+    config_loader: {
+        config: {
+            shape: class
+
+            slide_window_size: uint64 # in seconds
+            criteria_start_time: uint64 # epoch time in seconds
+        }
+    }
+
+    hasher: {}
+
+    egress: {
+        message: {
+            shape: class
+
+            id: string
+            timestamp: string
+            content: bytes
+        }
+    }
+}
+
+cronjob: {
+    schedule: "* * * * *"
+}
+
+log_sink_clickhouse: {
+
+}
+
+log_sink_S3: {
+
+}
+
+log_sink_mongo: {
+
+}
+
+log_sink_opensearch: {
+
+}
+
+log_sink_clickhouse -> processor.adaptor_clickhouse
+log_sink_S3 -> processor.adaptor_S3
+log_sink_mongo -> processor.adaptor_mongo
+log_sink_opensearch -> processor.adaptor_opensearch
+
+processor.adaptor_clickhouse -> processor.ingress
+processor.adaptor_S3 -> processor.ingress
+processor.adaptor_mongo -> processor.ingress
+processor.adaptor_opensearch -> processor.ingress
+
+cronjob -> processor.boot_loader -> processor.config_loader -> processor.ingress -> processor.hasher -> processor.egress
+
+external_webhook_server
+
+external_sink
+
+processor.egress -> external_webhook_server -> external_sink
