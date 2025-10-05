@@ -20,6 +20,12 @@ processor: {
             timestamp: string
             content: bytes
         }
+
+        message_batch: {
+            shape: class
+
+            messages: [message]
+        }
     }
 
     boot_loader: {}
@@ -36,12 +42,12 @@ processor: {
     hasher: {}
 
     egress: {
-        message: {
+        hash_key: {
             shape: class
 
-            id: string
-            timestamp: string
-            content: bytes
+            start_timestamp: string
+            end_timestamp: string
+            hash: string
         }
     }
 }
